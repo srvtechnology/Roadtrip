@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers;
+
+namespace App\Http\Controllers\api;
+
+use App\Http\Controllers\Controller;
+use App\User;
+use App\Package;
+use App\Payment;
+use App\UserPackageInfo;
+use Illuminate\Http\Request;
+
+class PaymentController extends Controller
+{
+    public function addPayment(request $request)
+    {
+        $userId = $request->input('user_id');
+        $packageID = $request->input('package_id');
+        $paymentAmount = $request->input('payment_amount');
+        $platform = $request->input('platform');
+        $gatewayReponse = $request->input('gateway_response');
+       
+
+        if (isset($userId) && isset($packageID) && isset($paymentAmount) && isset($platform) && isset($gatewayReponse)) {
+
+            $isUserExist = User::find($userId);
+           
+
+            if ($isUserExist) {
+
+                $model = new Payment;
+                $model->user_id = $userId;
+                $model->package_id = $packageID;
+                $model->payment_amount = $paymentAmount;
+                $model->platform = $platform;
+                 $model->gateway_response = $gatewayReponse;
+                $model->save();
+
+                $package = Package::where('package_id', $packageID)->first();
+
+                $user_info_ = UserPackageInfo::updateOrCreate(['user_id' => $userId]
+                    , ['package_details_on_purchase_time' => json_encode($package)]);
+
+                $response = array('flag' => "true", 'status_code' => '201', 'message' => "success", 'body' => $model);
+
+            } else {
+                $response = array('flag' => "false", 'status_code' => '1001', 'message' => "User not found");
+            }
+        } else {
+            $response = array('flag' => "false", 'status_code' => '1002', 'message' => "Missing Parameter(s)");
+
+        }
+        return json_encode($response);
+    }
+
+    public function getAllPackages(request $request)
+    {
+        $packages = Package::select('id', 'package_name', 'package_id'
+            , 'package_price', 'package_image', 'max_poi_no'
+            , 'max_podcast_no', 'sequence')->orderBy('sequence', "ASC")->get();
+
+        $response = array('flag' => "true", 'status_code' => '201', 'body' => $packages);
+
+        return json_encode($response);
+
+    }
+
+    public function getCurrentPackage(request $request)
+    {
+        $userId = $request->input('user_id');
+
+        if (isset($userId)) {
+            $package = UserPackageInfo::where('user_id', $userId)->first();
+
+            if ($package) {
+
+
+                $package['package_details_on_purchase_time']=json_decode($package->package_details_on_purchase_time);
+
+                unset($package->created_at,$package->updated_at);
+
+
+                $response = array("flag" => true, "status_code" => 201, "body" => $package, "message" => 'Data found');
+            } else {
+                $response = array("flag" => false, "status_code" => 1, "message" => 'This user does not have any active package');
+
+            }
+
+        } else {
+            $response = array("flag" => false, "status_code" => 2, "message" => 'Missing Param');
+
+        }
+
+
+        return json_encode($response);
+    }
+}
