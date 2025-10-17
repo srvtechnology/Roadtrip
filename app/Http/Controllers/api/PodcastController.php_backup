@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Http\Controllers\api;
+
+use App\Http\Controllers\Controller;
+use App\User;
+use Config;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use \Mail;
+use App\Podcast;
+
+
+
+class PodcastController extends Controller
+{
+    public function podcastList(request $request)
+    {
+        $userId = $request->input('user_id');
+        $limit = $request->input('limit');
+        $offset = $request->input('offset');
+
+        if (isset($userId) && isset($limit) && isset($offset)) {
+
+            $isUserExist = User::find($userId);
+
+            if($isUserExist){
+
+                $podcastList = Podcast::where('pod_active_status','1')->limit($limit)->offset($offset)->get();
+
+                if($podcastList){
+
+                    if(count($podcastList)>0){
+
+                        $list['podcast_list'] = $podcastList;
+    
+                        $response = array('flag' => "true", 'status_code' => '201', 'message' => "success", 'body' => $list);
+    
+                    }else{
+    
+                        $response = array('flag' => "false", 'status_code' => '1003', 'message' => "No data found");
+                    }
+
+                }else{
+
+                    $response = array('flag' => "false", 'status_code' => '1003', 'message' => "No data found");
+
+                }
+        
+            }else{
+                $response = array('flag' => "false", 'status_code' => '1001', 'message' => "User not found");
+            }
+
+        }else{
+            $response = array('flag' => "false", 'status_code' => '1002', 'message' => "Missing Parameter(s)");
+        }
+        return json_encode($response);
+
+    }
+
+    public function guest_podcastList(request $request)
+    {
+        // $limit = 0;
+        // $offset = 0;
+
+                $podcastList = Podcast::where('pod_active_status','1')->get();
+
+                if($podcastList){
+
+                    if(count($podcastList)>0){
+
+                        $list['podcast_list'] = $podcastList;
+    
+                        $response = array('flag' => "true", 'status_code' => '201', 'message' => "success", 'body' => $list);
+    
+                    }else{
+    
+                        $response = array('flag' => "false", 'status_code' => '1003', 'message' => "No data found");
+                    }
+
+                }else{
+
+                    $response = array('flag' => "false", 'status_code' => '1003', 'message' => "No data found");
+
+                }
+        
+            
+        return json_encode($response);
+
+    }
+}
