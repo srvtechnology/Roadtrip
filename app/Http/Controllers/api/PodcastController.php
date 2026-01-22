@@ -13,7 +13,11 @@ class PodcastController extends Controller
     {
         $userId = $request->input('user_id');
 
-        $podcastList = Podcast::where('pod_active_status', '1')->orderBy('pod_id',"DESC")->get();
+        $podcastList = Podcast::where('pod_active_status', '1')->orderBy('pod_id',"DESC")->get()->map(function ($item) {
+            // Cast 'type' to integer
+            $item->pod_active_status = (int) $item->pod_active_status;
+            return $item;
+        });
 
         // Add full image URL to each podcast
         foreach ($podcastList as $podcast) {
@@ -133,7 +137,11 @@ class PodcastController extends Controller
         // $limit = 0;
         // $offset = 0;
 
-        $podcastList = Podcast::where('pod_active_status', '1')->get();
+        $podcastList = Podcast::where('pod_active_status', '1')->get()->map(function ($item) {
+            // Cast 'type' to integer
+            $item->pod_active_status = (int) $item->pod_active_status;
+            return $item;
+        });;
 
         if ($podcastList) {
 

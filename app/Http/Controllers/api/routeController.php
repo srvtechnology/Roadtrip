@@ -7,6 +7,7 @@ use App\Poi;
 use App\Route;
 use App\User;
 use Illuminate\Http\Request;
+use DB;
 
 class routeController extends Controller
 {
@@ -51,7 +52,8 @@ class routeController extends Controller
 
         $selectionRoute = array(
             'route_id'
-            , 'route_type as type'
+            // , 'route_type as type'
+            , DB::raw('CAST(route_type AS SIGNED) as type')
             , 'route_top_banner_img as banner_image'
             , 'route_map_banner_img as map_image'
             , 'route_audio_en as audio_en'
@@ -67,7 +69,17 @@ class routeController extends Controller
             , 'route_description_fr as description_fr'
             , 'route_description_de as description_de');
 
-        $routes = Route::where('route_status', 1)->orderby('created_at','DESC')->select($selectionRoute)->get();
+        // $routes = Route::where('route_status', 1)->orderby('created_at','DESC')->select($selectionRoute)->get();
+
+        $routes = Route::where('route_status', 1)
+        ->orderBy('created_at', 'DESC')
+        ->select($selectionRoute)
+        ->get()
+        ->map(function ($item) {
+            // Cast 'type' to integer
+            $item->type = (int) $item->type;
+            return $item;
+        });
 
         if (count($routes) > 0) {
 
@@ -108,7 +120,12 @@ class routeController extends Controller
                 ->where('poi_status', 1)
                 ->orderby('poi_id','DESC')
                 ->select($selectionPoi)
-                ->get();
+                ->get()
+                 ->map(function ($item) {
+                    // Cast 'type' to integer
+                    $item->route_id = (int) $item->route_id;
+                    return $item;
+                });
 
             $body = array('route_list' => $routes, 'poi_list' => $poi);
 

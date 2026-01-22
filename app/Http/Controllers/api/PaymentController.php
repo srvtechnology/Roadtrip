@@ -221,6 +221,8 @@ class PaymentController extends Controller
                 // dd($package->package_details_on_purchase_time['route_ids']);
 
                 $package['package_details_on_purchase_time'] = $package->package_details_on_purchase_time;
+                $package['user_id'] = (int) $userId;
+
 
                 // $package['package_details_on_purchase_time']=json_decode($package->package_details_on_purchase_time);
 
@@ -597,6 +599,14 @@ public function user_used_data_count_get(Request $request){
 
         // Find existing or create new record
         $usage = UserPackageUsage::where('user_id',$request->user_id)->where('package_id',$request->package_id)->first();
+        if($usage){
+            $usage['user_id']=(int)$request->user_id;
+            $usage['package_id']=(int)@$usage->package_id;
+            $usage['used_podcast_count']=(int)@$usage->used_podcast_count;
+            $usage['used_daily_routes_count']=(int)@$usage->used_daily_routes_count;
+        }
+
+
 
         $packageDetails=Package::where('package_id', $request->package_id)->first();
         if(!$packageDetails){
