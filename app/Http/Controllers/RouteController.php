@@ -23,8 +23,8 @@ class RouteController extends Controller
                 $file = $request->file('image');
                 $fileName = time() . mt_rand() . '.' . $file->getClientOriginalExtension();
 
-                //$rules = array('image' => 'nullable|file|dimensions:ratio=16/9|max:5120');
-                $rules = array('image' => 'nullable|image|max:5120');
+                //$rules = array('image' => 'nullable|file|dimensions:ratio=16/9|max:102400');
+                $rules = array('image' => 'nullable|image|max:102400');
                 $validator = Validator::make(Input::all(), $rules);
 
                 if ($validator->fails()) {
@@ -47,7 +47,7 @@ class RouteController extends Controller
                 $file = $request->file('image');
                 $fileName = time() . mt_rand() . '.' . $file->getClientOriginalExtension();
 
-                $rules = array('image' => 'nullable|image|max:5120');
+                $rules = array('image' => 'nullable|image|max:102400');
                 $validator = Validator::make(Input::all(), $rules);
 
                 if ($validator->fails()) {
@@ -71,7 +71,7 @@ class RouteController extends Controller
 
                 $fileName = time() . mt_rand() . '.' . $file->getClientOriginalExtension();
 
-                $rules = array('image' => 'nullable|image|max:5120');
+                $rules = array('image' => 'nullable|image|max:102400');
                 $validator = Validator::make(Input::all(), $rules);
 
                 if ($validator->fails()) {
@@ -152,7 +152,7 @@ class RouteController extends Controller
              elseif ($request->from == "add_pod") {
                 $file = $request->file('audio');
                 $fileName = time() . mt_rand() . '.' . $file->getClientOriginalExtension();
-                 $rules = array('audio' => 'nullable|mimetypes:audio/x-m4a|max:5120');
+                 $rules = array('audio' => 'nullable|mimetypes:audio/x-m4a|max:102400');
                 $validator = Validator::make(Input::all(), $rules);
 
                 if ($validator->fails()) {
