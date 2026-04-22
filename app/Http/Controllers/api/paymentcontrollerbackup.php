@@ -352,46 +352,21 @@ class PaymentController extends Controller
         $c_route=0;
         $c_podcast=0;
         // $srch_package=DB::table('packages')->whereIn('id',$srch)->get();
-        $has_all_routes = false;
-        $has_all_podcasts = false;
-
         foreach($srch as $value)
         {
-            $srch_package = Payment::select('id', 'package_details_on_purchase_time')->where('id', $value->id)->first();
-            $details = $srch_package->package_details_on_purchase_time;
+          //need to claculate the couting from payment table..
+            $srch_package=Payment::select('id', 'package_details_on_purchase_time')->where('id',$value->id)->first();
+           /*DB::table('payments')->where('id',$value->id)->first();*/
+          //  dd($srch_package->package_details_on_purchase_time['route_ids'],$srch_package->package_details_on_purchase_time['podcast_ids']);
 
-            // Handle Routes logic
-            if (isset($details['allowed_routes'])) {
-                if ($details['allowed_routes'] === "all") {
-                    $has_all_routes = true;
-                } else {
-                    $c_route += (int)$details['allowed_routes'];
-                }
-            } else {
-                $routes = count(explode(',', $details['route_ids'] ?? '')) - 1;
-                if ($routes > 0) $c_route += $routes;
-            }
-
-            // Handle Podcasts logic
-            if (isset($details['allowed_podcasts'])) {
-                if ($details['allowed_podcasts'] === "all") {
-                    $has_all_podcasts = true;
-                } else {
-                    $c_podcast += (int)$details['allowed_podcasts'];
-                }
-            } else {
-                $podcast = count(explode(',', $details['podcast_ids'] ?? '')) - 1;
-                if ($podcast > 0) $c_podcast += $podcast;
-            }
-        }
-
-        // If any package has "all", set the count to the total available items
-        if ($has_all_routes) {
-            $c_route = Route::where('route_status', 1)->count();
-        }
-        if ($has_all_podcasts) {
-            $c_podcast = Podcast::where('pod_active_status', '1')->count();
-        }
+            // $routes=count(explode(',',$srch_package->route_ids))-1;
+            // $podcast=count(explode(',',$srch_package->podcast_ids))-1;
+            $routes=count(explode(',',$srch_package->package_details_on_purchase_time['route_ids']))-1;
+            $podcast=count(explode(',',$srch_package->package_details_on_purchase_time['podcast_ids']))-1;
+            $c_podcast= $c_podcast+$podcast;
+            $c_route=$c_route+$routes;
+            
+        }    
          //dd($c_podcast,$c_route); 6020  6062
          //check wether all the roadtrip used or not and all the podcast used or not ..
          $srch_roadtrip_count=UserRoadTrip::where('user_id',$userId)->where('roadtrip_status','1')->count();
